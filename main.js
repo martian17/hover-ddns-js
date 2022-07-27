@@ -194,19 +194,3 @@ let main = async function(){
 };
 
 main();
-/*
-let login = function() {
-    let signinURL = "www.hover.com";
-    let authURL = "https://www.hover.com/api/login";
-
-    const res = request_async({
-        hostname: signinURL,
-        port: 443,
-        path: '/signin',
-        method: 'GET',
-    });
-};
-*/
-
-//login();
-

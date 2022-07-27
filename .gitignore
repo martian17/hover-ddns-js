@@ -1,3 +1,4 @@
 node_modules
 .env
 ddns.json
+hover-ddns-js.service

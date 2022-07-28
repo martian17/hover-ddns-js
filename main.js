@@ -5,11 +5,7 @@ require("dotenv").config();
 let request_async = function(obj,cb=()=>{}){
     return new Promise((resolve,reject)=>{
         const request = https.request(obj, response => {
-            //if(response.statusCode !== 200){
-            //    reject(new Error(`session status code ${response.statusCode}`));
-            //}else{
-                resolve(response);
-            //}
+            resolve(response);
         });
         request.on("error",err=>{
             reject(err);
@@ -49,6 +45,9 @@ class Client{
             path:"/signin",
             method:"GET"
         });
+        if(response.statusCode !== 200){
+            throw new FatalError(`Session status code ${response.statusCode} at signin, the API probably changed.`);
+        }
         let sessionCookie = response.headers?.["set-cookie"]?.[0];
         if(sessionCookie === undefined || sessionCookie === "")throw new FatalError("Unable to get session cookie, the API must have changed");
         sessionCookie = sessionCookie.split("; ")[0];
@@ -64,6 +63,9 @@ class Client{
         },(request)=>{
             request.write(JSON.stringify({username:process.env.username,password:process.env.password}));
         });
+        if(response.statusCode !== 200){
+            throw new FatalError(`Wrong username or password. Session status code ${response.statusCode}`);
+        }
         
         let authCookie = response.headers?.["set-cookie"]?.[0];
         if(authCookie === undefined || authCookie === "")throw new FatalError("Unable to get auth cookie, the API must have changed");

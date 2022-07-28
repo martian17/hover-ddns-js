@@ -5,6 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
+WorkingDirectory=/path/to/your/clone/
 ExecStart=/usr/bin/node /path/to/your/clone/main.js
 
 [Install]

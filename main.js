@@ -161,38 +161,70 @@ let update = async function(ip){
     //await client.getRecords("martian17.com");
 };
 
+let isIP = function(str){
+    let arr = str.split(".").map(n=>parseInt(n));
+    if(arr.length !== 4){
+        return false;
+    }else if(arr.join(".") !== str){
+        return false;
+    }
+    return true;
+};
+
+
 
 let main = async function(){
-    let ip = "0.0.0.0";
-    let checkInterval = parseInt(process.env.checkInterval)*1000;
+    fs = fs.promises;
+    if(!fs.existsSync("./current_ip")){
+        //create current ip file
+        fs.writeFileSync("./current_ip","0.0.0.0");
+    }
+    let stats = fs.lstatSync("current_ip.txt");
+    if(!stats.isFile()){
+        throw new FatallError("current_ip not a regular text file. remove it and try again.");
+    }
+    let ip = readFileSync("./current_ip");
+    if(!isIP(ip)){
+        fs.writeFileSync("./current_ip","0.0.0.0");
+        ip = "0.0.0.0";
+    }
+    
     while(true){
         let ip1;
         try{
-            ip1 = await get_async("ifconfig.me","");
-        }catch(e){
-            await new Promise((res,rej)=>setTimeout(res,checkInterval));
-        }
-        if(ip === ip1){
-            continue;
-        }
-        console.log(`ip changed from ${ip} to ${ip1}`);
-        ip = ip1;
-        while(true){
-            try{
-                await update(ip);
-                break;
-            }catch(err){
-                if(err instanceof FatalError){
-                    throw err;
-                }else{
-                    console.log("probably a network error",err);
+            do{
+                ip1 = await get_async("ifconfig.me","");
+                if(!isIP(ip1))throw new Error("ifconfig.me not returning an ip, likely a network issue");
+                if(ip === ip1){
+                    break;
                 }
+                console.log(`ip changed from ${ip} to ${ip1}`);
+                ip = ip1;
+                fs.writeFileSync("./current_ip",ip);
+                
+                while(true){
+                    try{
+                        await update(ip);
+                        break;
+                    }catch(err){
+                        if(err instanceof FatalError){
+                            throw err;
+                        }else{
+                            console.log("probably a network error",err);
+                            await new Promise((res,rej)=>setTimeout(res,checkInterval)); 
+                        }
+                    }
+                }
+            }while(false);
+        }catch(err){
+            if(err instanceof FatalError){
+                throw err;
+            }else{
+                console.log("probably a network error",err);
             }
-            await new Promise((res,rej)=>setTimeout(res,checkInterval)); 
         }
-        await new Promise((res,rej)=>setTimeout(res,checkInterval));
+        await new Promise((res,rej)=>setTimeout(res,checkInterval)); 
     }
-    console.log("terminating the program");
 };
 
 main();

@@ -189,6 +189,7 @@ let main = async function(){
     }
     
     let checkInterval = process.env.checkInterval*1000;
+    let firstLoop = true;
     while(true){
         let ip1;
         try{
@@ -223,7 +224,11 @@ let main = async function(){
             }
         }
         fs.writeFileSync("./current_ip",ip);
-        await new Promise((res,rej)=>setTimeout(res,checkInterval)); 
+        if(firstLoop){
+            firstLoop = false;
+            console.log("successfully launched and finished the first loop, ip: "+ip);
+        }
+        await new Promise((res,rej)=>setTimeout(res,checkInterval));
     }
 };
 

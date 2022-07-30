@@ -174,21 +174,21 @@ let isIP = function(str){
 
 
 let main = async function(){
-    fs = fs.promises;
     if(!fs.existsSync("./current_ip")){
         //create current ip file
         fs.writeFileSync("./current_ip","0.0.0.0");
     }
-    let stats = fs.lstatSync("current_ip.txt");
+    let stats = fs.lstatSync("current_ip");
     if(!stats.isFile()){
         throw new FatallError("current_ip not a regular text file. remove it and try again.");
     }
-    let ip = readFileSync("./current_ip");
+    let ip = fs.readFileSync("./current_ip")+"";
     if(!isIP(ip)){
         fs.writeFileSync("./current_ip","0.0.0.0");
         ip = "0.0.0.0";
     }
     
+    let checkInterval = process.env.checkInterval*1000;
     while(true){
         let ip1;
         try{
@@ -200,7 +200,6 @@ let main = async function(){
                 }
                 console.log(`ip changed from ${ip} to ${ip1}`);
                 ip = ip1;
-                fs.writeFileSync("./current_ip",ip);
                 
                 while(true){
                     try{
@@ -223,6 +222,7 @@ let main = async function(){
                 console.log("probably a network error",err);
             }
         }
+        fs.writeFileSync("./current_ip",ip);
         await new Promise((res,rej)=>setTimeout(res,checkInterval)); 
     }
 };

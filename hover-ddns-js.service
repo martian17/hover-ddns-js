@@ -1,0 +1,12 @@
+[Unit]
+Description=Hover DDNS Updater
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=${WORKDIR}
+ExecStart=/usr/local/bin/node main.js
+
+[Install]
+WantedBy=multi-user.target

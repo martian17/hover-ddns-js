@@ -129,7 +129,7 @@ let main = async function(){
         try{
             do{
                 ip1 = (await fetch("https://ifconfig.me/all.json").then(res=>res.json()))?.ip_addr;
-                console.log("ip1",ip1);
+                vlog("ip1",ip1);
                 if(!isIP(ip1))throw new Error("ifconfig.me not returning an ip, likely a network issue");
                 if(ip === ip1 && !options.renew){
                     break;
